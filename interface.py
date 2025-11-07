@@ -17,6 +17,7 @@ class MainWindow(QMainWindow):
 
     def setUpMainWindow(self):
 
+        #region PERVUY BLOK
         central_widget = QWidget()
         self.setCentralWidget(central_widget)
         
@@ -68,8 +69,35 @@ class MainWindow(QMainWindow):
         top_layout.addStretch()  # Растягивающее пространство между левой и правой частью
         top_layout.addWidget(rigth_widget)
 
+        #endregion
+
+        #region VTOROY BLOK
+        main_h_box_vtoroy = QHBoxLayout()  
+
+        #region Create button navigator 
+        button_navigatot = QPushButton("Навигатор", self)
+        button_navigatot.setStyleSheet("font-size: 24px; font-family: Arial; padding-left: 15px;")
+        #endregion
+
+        #region Create button calendar 
+        button_date = QPushButton("Выбор даты: календарь", self)
+        button_date.setStyleSheet("font-size: 24px; font-family: Arial; padding-left: 15px;")
+        #endregion
+
+        #region Create button doctor 
+        button_doctor = QPushButton("Выбор врача: ...v", self)
+        button_doctor.setStyleSheet("font-size: 24px; font-family: Arial; padding-left: 15px;")
+        #endregion
+
+        main_h_box_vtoroy.addWidget(button_navigatot)
+        main_h_box_vtoroy.addWidget(button_date)
+        main_h_box_vtoroy.addWidget(button_doctor)
+
+        main_h_box_vtoroy.setAlignment(Qt.AlignmentFlag.AlignTop)
+
         # Добавляем верхний layout в основной вертикальный layout
         main_v_box.addLayout(top_layout)
+        main_v_box.addLayout(main_h_box_vtoroy)
 
 
 app = QApplication(sys.argv)

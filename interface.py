@@ -139,10 +139,29 @@ class MainWindow(QMainWindow):
         
         #endregion
 
+        #region 4 blok
+
+        main_h_box_chetvertuy = QHBoxLayout() 
+
+        for x in range(10):
+            label_time = QLabel("09:30", self)
+            label_status = QLabel("Свободно", self)
+            label_namesurname = QLabel("Иванов Иван")
+
+            main_h_box_chetvertuy.addWidget(label_time)
+            main_h_box_chetvertuy.addWidget(label_status)
+            main_h_box_chetvertuy.addWidget(label_namesurname)
+
+
+
+        
+        #endregion 
+
         # Добавляем все layout в основной вертикальный layout
         main_v_box.addLayout(main_h_box_perviy)
         main_v_box.addLayout(main_h_box_vtoroy)
         main_v_box.addLayout(main_h_box_tretiy)
+        main_v_box.addLayout(main_h_box_chetvertuy)
         
         # Устанавливаем layout для центрального виджета
         central_widget.setLayout(main_v_box)

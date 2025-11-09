@@ -1,5 +1,5 @@
 import sys
-from PyQt6.QtWidgets import QApplication, QMainWindow, QLabel, QPushButton, QVBoxLayout, QWidget, QHBoxLayout
+from PyQt6.QtWidgets import QApplication, QMainWindow, QLabel, QPushButton, QVBoxLayout, QWidget, QHBoxLayout, QGridLayout
 from PyQt6.QtGui import QAction, QPixmap
 from PyQt6.QtCore import Qt
 from datetime import datetime  
@@ -141,19 +141,53 @@ class MainWindow(QMainWindow):
 
         #region 4 blok
 
-        main_h_box_chetvertuy = QHBoxLayout() 
+       #region 4 BLOK - Простое расписание
+        main_v_box_chetvertuy = QVBoxLayout()
 
-        for x in range(10):
-            label_time = QLabel("09:30", self)
-            label_status = QLabel("Свободно", self)
-            label_namesurname = QLabel("Иванов Иван")
+        # Заголовок
+        label_title = QLabel("Расписание")
+        label_title.setStyleSheet("font-size: 16px; font-weight: bold;")
+        main_v_box_chetvertuy.addWidget(label_title)
 
-            main_h_box_chetvertuy.addWidget(label_time)
-            main_h_box_chetvertuy.addWidget(label_status)
-            main_h_box_chetvertuy.addWidget(label_namesurname)
+        # Данные для таблицы
+        schedule_data = [
+            ["09:00", "Свободно",    "Петров В.",   "Свободно"],
+            ["09:30", "Иванов А.",   "Свободно",    "Заблокировано"],
+            ["10:00", "Свободно",    "Заблокировано", "Свободно"],
+            ["10:30", "Сидоров К.",  "Свободно",    "Иванов А."],
+            ["11:00", "Свободно",    "Петров В.",   "Свободно"],
+            ["11:30", "Заблокировано", "Свободно",  "Петров В."]
+        ]
 
+        # Создаем строки расписания
+        for row in schedule_data:
+            h_box = QHBoxLayout()
+            
+            time_label = QLabel(row[0])
+            time_label.setStyleSheet("font-weight: bold; min-width: 50px;")
+            
+            doctor1 = QLabel(row[1])
+            doctor2 = QLabel(row[2]) 
+            doctor3 = QLabel(row[3])
+            
+            # Ставим стили в зависимости от статуса
+            for label in [doctor1, doctor2, doctor3]:
+                text = label.text()
+                if text == "Свободно":
+                    label.setStyleSheet("background: lightgreen; padding: 5px; margin: 2px;")
+                elif text == "Заблокировано":
+                    label.setStyleSheet("background: lightcoral; padding: 5px; margin: 2px;")
+                else:
+                    label.setStyleSheet("background: lightblue; padding: 5px; margin: 2px;")
+            
+            h_box.addWidget(time_label)
+            h_box.addWidget(doctor1)
+            h_box.addWidget(doctor2)
+            h_box.addWidget(doctor3)
+            
+            main_v_box_chetvertuy.addLayout(h_box)
 
-
+#endregion
         
         #endregion 
 
@@ -161,7 +195,7 @@ class MainWindow(QMainWindow):
         main_v_box.addLayout(main_h_box_perviy)
         main_v_box.addLayout(main_h_box_vtoroy)
         main_v_box.addLayout(main_h_box_tretiy)
-        main_v_box.addLayout(main_h_box_chetvertuy)
+        main_v_box.addLayout(main_v_box_chetvertuy)
         
         # Устанавливаем layout для центрального виджета
         central_widget.setLayout(main_v_box)

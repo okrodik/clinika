@@ -1,38 +1,34 @@
-import pyodbc
+import sqlite3
 
-# Подключение к SQL Server
-conn = pyodbc.connect(
-    'DRIVER={SQL Server};'
-    'SERVER=MSI;'                    # Server name
-    'DATABASE=clinika;'                  # Database name
-    'Trusted_Connection=yes;'        # Windows Authentication
-    'TrustServerCertificate=yes;'    # Trust server certificate
-)
-cursor = conn.cursor()
+# Устанавливаем соединение с базой данных
+connection = sqlite3.connect('klinika.db')
+cursor = connection.cursor()
 
+doctors_data = [
+    ('Доктор Иванов', 'Терапевт'),
+    ('Доктор Петрова', 'Хирург'),
+    ('Доктор Сидоров', 'Кардиолог')
+]
 
+patients_data = [
+    ('Иван Сергеев', '+79990001122', 'ivan@mail.ru'),
+    ('Мария Петрова', '+79990003344', 'maria@mail.ru'),
+    ('Алексей Козлов', '+79990005566', 'alex@mail.ru')
+]
 
-cursor.execute("""
-SELECT 
-    p.surname,
-    p.name, 
-    a.date,
-    a.time,
-    t.tooth_number,
-    t.status
-FROM Patients p
-INNER JOIN Appointments a ON p.id = a.patient_id
-INNER JOIN Teeth t ON p.id = t.patient_id
-WHERE p.id = 1
-ORDER BY t.tooth_number
-""")
+appointments_data = [
+    ('2024-01-15', '09:00', 1, 1, 'confirmed', 'Консультация', 30, 'Первичный прием'),
+    ('2024-01-15', '10:00', 2, 2, 'confirmed', 'Осмотр', 45, 'Послеоперационный осмотр'),
+    ('2024-01-16', '11:00', 1, None, 'free', 'Консультация', 30, None)
+]
 
-results = cursor.fetchall()
+cursor.executemany('INSERT INTO doctors (name, specialization) VALUES (?, ?)', doctors_data)
+cursor.executemany('INSERT INTO patients (fullName, phone, email) VALUES (?, ?, ?)', patients_data)
+cursor.executemany('''
+    INSERT INTO appointments (date, time, doctor_id, patient_id, status, service_type, duration, notes) 
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+''', appointments_data)
 
-# Вывести результаты
-for row in results:
-    print(row)
-
-# Закрыть соединение
-cursor.close()
-conn.close()
+# Сохраняем изменения и закрываем соединение
+connection.commit()
+connection.close()

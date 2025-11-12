@@ -5,11 +5,11 @@ from PyQt6.QtCore import Qt
 from datetime import datetime  
 import main
 
-idDoctor = 1
-
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
+        self.idDoctor = 1  # Сначала инициализируем атрибуты
+        self.schedule_layout = None
         self.initializeUI()
 
     def initializeUI(self):
@@ -158,38 +158,9 @@ class MainWindow(QMainWindow):
         main_v_box_chetvertuy.addWidget(label_title)
         #main_v_box_chetvertuy.addWidget(label_title2)
 
-        appointments = main.getAppointments(idDoctor)
-
-                # Данные для таблицы
-        schedule_data = []
-
-        if appointments:
-            for time, name, service, notes, status in appointments:
-                schedule_data.append([time, name, service, notes, status])
-
-        # Создаем строки расписания
-        for row in schedule_data:
-            h_box = QHBoxLayout()
-            
-            time_label = QLabel(row[0])
-            time_label.setStyleSheet("font-weight: bold; min-width: 50px;")
-            
-            name = QLabel(row[1])
-            type = QLabel(row[2])
-            notes = QLabel(row[3])
-            status = QLabel(row[4]) 
-            
-            for label in [name, type, notes, status]:
-
-                label.setStyleSheet("background: Light sea green; padding: 5px; margin: 2px;")
-            
-            h_box.addWidget(time_label)
-            h_box.addWidget(name)
-            h_box.addWidget(type)
-            h_box.addWidget(notes)
-            h_box.addWidget(status)
-            
-            main_v_box_chetvertuy.addLayout(h_box)
+        self.schedule_layout = main_v_box_chetvertuy  # Сохраняем ссылку
+        self.update_schedule(self.idDoctor)
+       
         
         #endregion 
             
@@ -243,12 +214,71 @@ class MainWindow(QMainWindow):
         print(f"Запрос даты: {datte}")
 
     def onActivated(self, text):
-        if(text == "Доктор Петрова"):
-            idDoctor = 1
-        if (text == "Доктор Сидоров"):
-            idDoctor = 2
         if (text == "Доктор Иванов"):
-            idDoctor = 3
+            self.idDoctor = 1
+        if(text == "Доктор Петрова"):
+            self.idDoctor = 2
+        if (text == "Доктор Сидоров"):
+            self.idDoctor = 3
+
+        self.update_schedule(self.idDoctor)
+
+        ##TODO здесь надо обновление экрана при выборе врача
+    def update_schedule(self, doctor_id):
+        # Очищаем существующее расписание (кроме заголовка)
+        if self.schedule_layout:
+            while self.schedule_layout.count() > 1:
+                item = self.schedule_layout.takeAt(1)
+                if item.widget():
+                    item.widget().deleteLater()
+                elif item.layout():
+                    # Если это layout, рекурсивно удаляем его содержимое
+                    self.clear_layout(item.layout())
+    
+        appointments = main.getAppointments(doctor_id)
+
+        # Данные для таблицы
+        if appointments:
+            for time, name, service, notes, status in appointments:
+                h_box = QHBoxLayout()
+                
+                time_label = QLabel(time)
+                time_label.setStyleSheet("font-weight: bold; min-width: 50px;")
+                
+                name_label = QLabel(name)
+                type_label = QLabel(service)
+                notes_label = QLabel(notes)
+                status_label = QLabel(status) 
+                
+                for label in [name_label, type_label, notes_label, status_label]:
+                    label.setStyleSheet("background: Light sea green; padding: 5px; margin: 2px;")
+                
+                h_box.addWidget(time_label)
+                h_box.addWidget(name_label)
+                h_box.addWidget(type_label)
+                h_box.addWidget(notes_label)
+                h_box.addWidget(status_label)
+                
+                self.schedule_layout.addLayout(h_box)
+        else:
+            # Если записей нет, показываем сообщение
+            no_appointments_label = QLabel("Записей на прием нет")
+            no_appointments_label.setStyleSheet("font-style: italic; color: gray;")
+            self.schedule_layout.addWidget(no_appointments_label)
+        
+        # Принудительно обновляем интерфейс
+        self.schedule_layout.update()
+
+    # Вспомогательный метод для очистки layout
+    def clear_layout(self, layout):
+        if layout is not None:
+            while layout.count():
+                item = layout.takeAt(0)
+                widget = item.widget()
+                if widget is not None:
+                    widget.deleteLater()
+                else:
+                    self.clear_layout(item.layout())
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)

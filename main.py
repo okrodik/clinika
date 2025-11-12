@@ -16,7 +16,7 @@ def getDoctor():
     
     return [name[0] for name in names]
     
-def getAppointments(doctor_id):
+def getAppointments(doctor_id, datePriem):
     connection = sqlite3.connect('klinika.db')
     cursor = connection.cursor()
     
@@ -29,8 +29,8 @@ def getAppointments(doctor_id):
             a.status 
         FROM appointments a
         LEFT JOIN patients p ON a.patient_id = p.id
-        WHERE a.doctor_id = ?
-    ''', (doctor_id,))
+        WHERE a.doctor_id = ? AND a.date = ?
+    ''', (doctor_id, datePriem))
     
     appointments = cursor.fetchall()
     connection.close()

@@ -1,18 +1,20 @@
 import sys
-from PyQt6.QtWidgets import QApplication, QComboBox, QMainWindow, QLabel, QPushButton, QVBoxLayout, QWidget, QHBoxLayout, QGridLayout
+from PyQt6.QtWidgets import QApplication, QComboBox, QMainWindow, QLabel, QPushButton, QVBoxLayout, QWidget, QHBoxLayout, QDateEdit
 from PyQt6.QtGui import QAction, QPixmap
-from PyQt6.QtCore import Qt
+from PyQt6.QtCore import Qt, QDate
 from datetime import datetime  
 import main
+
 
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         self.idDoctor = 1  # Сначала инициализируем атрибуты
-        self.schedule_layout = None
+        self.DatePriem = None
         self.initializeUI()
 
     def initializeUI(self):
+        self.DatePriem = f"{datetime.now().strftime('%Y-%m-%d')}"
         self.setMinimumSize(350, 250)
         self.setWindowTitle("Stacked Layout")
         self.setUpMainWindow()
@@ -39,6 +41,7 @@ class MainWindow(QMainWindow):
                 logo_label.setPixmap(logo_pixmap)
         except:
             pass  # Если логотип не загружается, просто продолжаем
+
         logo_label.setAlignment(Qt.AlignmentFlag.AlignLeft)
         #endregion
 
@@ -89,8 +92,12 @@ class MainWindow(QMainWindow):
 
 
         #region Create button calendar 
-        button_date = QPushButton("Выбор даты: календарь")
-        button_date.setStyleSheet("font-size: 24px; font-family: Arial; padding-left: 15px;")
+        date_edit = QDateEdit()
+        date_edit.setCalendarPopup(True)  # Включаем выпадающий календарь
+        date_edit.setDate(QDate.currentDate())
+        date_edit.setDisplayFormat("yyyy-MM-dd")
+        date_edit.setStyleSheet("font-size: 24px; font-family: Arial; padding-left: 15px;")
+        date_edit.dateChanged.connect(self.on_date_changed)
         #endregion
 
 
@@ -100,9 +107,9 @@ class MainWindow(QMainWindow):
         combo_doctor.textActivated.connect(self.onActivated)
         combo_doctor.setStyleSheet("font-size: 24px; font-family: Arial; padding-left: 15px;")
 
-        button_date.clicked.connect(self.date_click)
+        #date_edit.clicked.connect(self.date_click)
 
-        main_h_box_vtoroy.addWidget(button_date)
+        main_h_box_vtoroy.addWidget(date_edit)
         main_h_box_vtoroy.addWidget(combo_doctor)
             
         #endregion
@@ -117,7 +124,7 @@ class MainWindow(QMainWindow):
         main_v_box_chetvertuy.addWidget(label_title)
 
         self.schedule_layout = main_v_box_chetvertuy  # Сохраняем ссылку
-        self.update_schedule(self.idDoctor)
+        self.update_schedule(self.idDoctor, self.DatePriem)
        
         
         #endregion 
@@ -175,10 +182,10 @@ class MainWindow(QMainWindow):
         if (text == "Доктор Сидоров"):
             self.idDoctor = 3
 
-        self.update_schedule(self.idDoctor)
+        self.update_schedule(self.idDoctor, self.DatePriem)
 
 
-    def update_schedule(self, doctor_id):
+    def update_schedule(self, doctor_id, datePriem):
         # Очищаем существующее расписание (кроме заголовка)
         if self.schedule_layout:
             while self.schedule_layout.count() > 1:
@@ -189,7 +196,7 @@ class MainWindow(QMainWindow):
                     # Если это layout, рекурсивно удаляем его содержимое
                     self.clear_layout(item.layout())
     
-        appointments = main.getAppointments(doctor_id)
+        appointments = main.getAppointments(doctor_id, datePriem)
 
         # Данные для таблицы
         if appointments:
@@ -233,6 +240,10 @@ class MainWindow(QMainWindow):
                     widget.deleteLater()
                 else:
                     self.clear_layout(item.layout())
+
+    def on_date_changed(self, date):
+        self.DatePriem = date.toString("yyyy-MM-dd")
+        self.update_schedule(self.idDoctor, self.DatePriem)
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)

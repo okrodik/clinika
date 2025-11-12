@@ -93,19 +93,19 @@ class MainWindow(QMainWindow):
         button_date.setStyleSheet("font-size: 24px; font-family: Arial; padding-left: 15px;")
         #endregion
 
-        #region Create button doctor 
+
 
         combo_doctor = QComboBox(self)
         combo_doctor.addItems(main.getDoctorName())
         combo_doctor.textActivated.connect(self.onActivated)
+        combo_doctor.setStyleSheet("font-size: 24px; font-family: Arial; padding-left: 15px;")
 
         button_date.clicked.connect(self.date_click)
 
         main_h_box_vtoroy.addWidget(button_date)
         main_h_box_vtoroy.addWidget(combo_doctor)
-       
+            
         #endregion
-
 
         #region 4 BLOK - Простое расписание
         main_v_box_chetvertuy = QVBoxLayout()

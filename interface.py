@@ -1,5 +1,5 @@
 import sys
-from PyQt6.QtWidgets import QApplication, QComboBox, QMainWindow, QLabel, QPushButton, QVBoxLayout, QWidget, QHBoxLayout, QDateEdit
+from PyQt6.QtWidgets import QApplication, QComboBox, QMessageBox, QDialog, QLineEdit, QMainWindow, QLabel, QPushButton, QVBoxLayout, QWidget, QHBoxLayout, QDateEdit
 from PyQt6.QtGui import QAction, QPixmap
 from PyQt6.QtCore import Qt, QDate
 from datetime import datetime  
@@ -156,14 +156,22 @@ class MainWindow(QMainWindow):
         # Устанавливаем layout для центрального виджета
         central_widget.setLayout(main_v_box)
 
-    def newPriem(self):
-        pass
+#TODO ДОБАВИТЬ ЗАПИСЬ НА ПРИЕМ
+    def newPriem(self, s):
+        print("click", s)
+
+        dlg = CustomDialog()
+        if dlg.exec():
+            print("Success!")
+        else:
+            print("Cancel!")
 
     def newPatient(self):
         pass
     
     def setting(self):
         pass  
+
         
     def date_click(self):
         print("CLICK Date")
@@ -244,6 +252,107 @@ class MainWindow(QMainWindow):
     def on_date_changed(self, date):
         self.DatePriem = date.toString("yyyy-MM-dd")
         self.update_schedule(self.idDoctor, self.DatePriem)
+
+class CustomDialog(QDialog):
+    def __init__(self):
+        super().__init__()
+
+        self.setWindowTitle("Добавить пациента!")
+
+        message = QLabel("Выберите дату записи")
+        message.setStyleSheet("font-weight: bold; min-width: 50px;")
+        
+        #region Create button calendar 
+        dateZapis = QDateEdit()
+        dateZapis.setCalendarPopup(True)  # Включаем выпадающий календарь
+        dateZapis.setDate(QDate.currentDate())
+        dateZapis.setDisplayFormat("yyyy-MM-dd")
+        dateZapis.setStyleSheet("font-size: 20px; font-family: Arial; padding-left: 15px;")
+        dateZapis.setFixedWidth(200)
+        #endregion
+
+        message2 = QLabel("Выберите дату записи")
+        message2.setStyleSheet("font-weight: bold; min-width: 50px;")
+
+        vremaZapis = QComboBox()
+        vremaZapis.addItems(["09:00", "09:30", "10:00", "10:30", "11:00", "11:30", "12:00", "12:30", "13:00", "13:30", "14:00", "14:30", "15:00", "15:30", "16:00"])
+        vremaZapis.setStyleSheet("font-size: 20px; font-family: Arial; padding-left: 15px;")
+        vremaZapis.setFixedWidth(200)
+
+        message3 = QLabel("Выбрать врача")
+        message3.setStyleSheet("font-weight: bold; min-width: 50px;")
+
+        viborVrach = QComboBox()
+        viborVrach.addItems(["Доктор Иванов", "Доктор Петрова", "Доктор Сидоров"])
+        viborVrach.setStyleSheet("font-size: 20px; font-family: Arial; padding-left: 15px;")
+        viborVrach.setFixedWidth(200)
+
+        message4 = QLabel("Какая услуга?")
+        message4.setStyleSheet("font-weight: bold; min-width: 50px;")
+
+        uslugeType = QComboBox()
+        uslugeType.addItems(["Осмотр", "Консультация", "Лечение"])
+        uslugeType.setStyleSheet("font-size: 20px; font-family: Arial; padding-left: 15px;")
+        uslugeType.setFixedWidth(200)
+
+        message5 = QLabel("Описание")
+        message5.setStyleSheet("font-weight: bold; min-width: 50px;")
+
+        textNotes = QLineEdit()
+        textNotes.setStyleSheet("font-size: 20px; font-family: Arial; padding-left: 15px;")
+        textNotes.setFixedWidth(200)
+
+        self.VerLayoutDate = QVBoxLayout()
+        self.VerLayoutVrema = QVBoxLayout()
+        self.VerLayoutDoctor = QVBoxLayout()
+        self.VerLayoutSerType = QVBoxLayout()
+        self.VerLayoutNotes = QVBoxLayout()
+
+        self.layout = QHBoxLayout()
+        self.VertLayout = QVBoxLayout()
+        self.ButtonLayout = QHBoxLayout()
+
+        buttonExit = QPushButton("Выйти", self)
+        buttonSave = QPushButton("Сохранить", self)
+
+        buttonExit.clicked.connect(self.ClickExit)
+        buttonSave.clicked.connect(self.ClickSave)
+
+        self.VerLayoutDate.addWidget(message)
+        self.VerLayoutDate.addWidget(dateZapis)
+
+        self.VerLayoutVrema.addWidget(message2)
+        self.VerLayoutVrema.addWidget(vremaZapis)
+
+        self.VerLayoutDoctor.addWidget(message3)
+        self.VerLayoutDoctor.addWidget(viborVrach)
+
+        self.VerLayoutSerType.addWidget(message4)
+        self.VerLayoutSerType.addWidget(uslugeType)
+
+        self.VerLayoutNotes.addWidget(message5)
+        self.VerLayoutNotes.addWidget(textNotes)
+
+        self.ButtonLayout.addWidget(buttonExit)
+        self.ButtonLayout.addWidget(buttonSave)
+
+        self.layout.addLayout(self.VerLayoutDate)
+        self.layout.addLayout(self.VerLayoutVrema)
+        self.layout.addLayout(self.VerLayoutDoctor)
+        self.layout.addLayout(self.VerLayoutSerType)
+        self.layout.addLayout(self.VerLayoutNotes)
+
+        self.VertLayout.addLayout(self.layout)
+        self.VertLayout.addLayout(self.ButtonLayout)
+
+        self.setLayout(self.VertLayout)
+
+    def ClickExit(self):
+        self.close()
+
+
+    def ClickSave(self):
+        pass
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
